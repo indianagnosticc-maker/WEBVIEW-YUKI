@@ -32,7 +32,7 @@
     --r-sm: 6px;
     --r-md: 8px;
     --font-ui: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-mono: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --duration-fast: 120ms;
     --duration-med: 180ms;
@@ -320,8 +320,8 @@
 
   /* Console Container */
   .console {
-    background: var(--surface-base); border: 1px solid var(--border-subtle);
-    border-radius: var(--r-md); padding: 14px; position: relative;
+    background: transparent; border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm); padding: 14px; position: relative;
   }
   .page { display: none; flex-direction: column; }
   .page.active { display: flex; animation: pageFade var(--duration-fast) var(--ease-out) both; }
@@ -425,7 +425,7 @@
 
   /* Editor Shell */
   .editor-shell {
-    background: #08090b; border: 1px solid var(--border-subtle); border-radius: var(--r-sm);
+    background: transparent; border: 1px solid var(--border-subtle); border-radius: var(--r-sm);
     overflow: hidden; display: flex; flex-direction: column;
   }
   .editor-topbar {
@@ -437,40 +437,6 @@
   .editor-file::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--indicator); }
   .editor-stats { display: flex; align-items: center; gap: 10px; }
 
-  /* In-editor compact search bar */
-  .editor-searchbar {
-    display: flex; align-items: center; gap: 6px; min-height: 34px; padding: 4px 8px;
-    background: #0b0d10; border-bottom: 1px solid var(--border-subtle);
-  }
-  .editor-search-input-wrap {
-    position: relative; flex: 1; min-width: 0;
-  }
-  .editor-search-icon {
-    position: absolute; left: 8px; top: 50%; width: 13px; height: 13px;
-    transform: translateY(-50%); color: var(--text-muted); pointer-events: none;
-  }
-  #editor-search-input {
-    width: 100%; min-width: 0; height: 26px; box-sizing: border-box;
-    padding: 0 8px 0 26px; border: 1px solid var(--border-subtle); border-radius: var(--r-xs);
-    outline: none; background: #08090b; color: var(--text-primary);
-    font: 400 11.5px/1 var(--font-mono);
-  }
-  #editor-search-input:focus { border-color: var(--accent); }
-  .editor-search-count {
-    flex: 0 0 auto; min-width: 32px; text-align: right;
-    color: var(--text-muted); font: 400 10.5px/1 var(--font-mono);
-  }
-  .editor-search-btn {
-    flex: 0 0 24px; width: 24px; height: 24px; padding: 0;
-    border: 1px solid var(--border-subtle); border-radius: var(--r-xs);
-    background: var(--surface-1); color: var(--text-secondary);
-    font: 500 12px/1 var(--font-ui); cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center;
-    transition: all var(--duration-fast) var(--ease-out);
-  }
-  .editor-search-btn:hover { background: var(--surface-2); color: var(--text-primary); border-color: var(--border-base); }
-  .editor-search-btn:active { transform: translateY(1px); }
-
   .editor-workspace { 
     display: flex; min-height: 480px; max-height: 640px; background: #08090b; position: relative; 
   }
@@ -479,29 +445,32 @@
     font-size: 11.5px; line-height: 20px; color: var(--text-faint); background: #0a0c0f;
     border-right: 1px solid var(--border-subtle); user-select: none; overflow: hidden;
   }
-  .editor-textarea-container { flex: 1; position: relative; min-width: 0; overflow: hidden; }
-  .editor-highlight, .editor-textarea {
-    position: absolute; inset: 0; margin: 0; border: none; outline: none;
-    padding: 10px 12px; font-family: var(--font-mono); font-size: 11.5px; line-height: 20px;
-    tab-size: 2; white-space: pre;
-    width: max-content; min-width: 100%; max-width: none;
+    .editor-textarea-container {
+    flex: 1; position: relative; min-width: 0; min-height: 0; overflow: hidden;
+    overscroll-behavior: contain; touch-action: none;
   }
-  .editor-highlight { 
-    z-index: 1; pointer-events: none; color: #d1d7e0; background: transparent; overflow: hidden;
+  .editor-highlight, .editor-textarea {
+    position: absolute; top: 0; left: 0; margin: 0; border: none; outline: none;
+    padding: 10px 12px; font-family: var(--font-mono); font-size: 11.5px; line-height: 20px;
+    tab-size: 2; white-space: pre; box-sizing: border-box;
+  }
+  .editor-highlight {
+    z-index: 1; pointer-events: none; color: #d1d7e0; background: transparent;
+    width: max-content; min-width: 100%; height: max-content; min-height: 100%;
+    overflow: visible; transform: translate3d(0,0,0);
   }
   .editor-textarea {
-    z-index: 2; background: transparent; color: transparent; -webkit-text-fill-color: transparent;
+    z-index: 2; width: 100%; height: 100%; min-width: 0; min-height: 0;
+    background: transparent; color: transparent; -webkit-text-fill-color: transparent;
     caret-color: #58a6ff; resize: none; overflow: auto;
-    -webkit-overflow-scrolling: touch; overscroll-behavior: auto;
+    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+    touch-action: pan-x pan-y; scrollbar-width: thin;
   }
-
-  /* Restrained VS Code Dark+ style syntax tokens */
-  .syntax-tag { color: #7ee787; }
-  .syntax-keyword { color: #ff7b72; font-weight: 500; }
-  .syntax-string { color: #a5d6ff; }
-  .syntax-comment { color: #8b949e; font-style: italic; }
-  .syntax-number { color: #79c0ff; }
-  .syntax-operator { color: #d2a8ff; }
+  .editor-textarea::selection { background: rgba(88, 166, 255, 0.30); color: transparent; -webkit-text-fill-color: transparent; }
+  .editor-textarea::-webkit-scrollbar { width: 5px; height: 5px; }
+  .editor-textarea::-webkit-scrollbar-track { background: transparent; }
+  .editor-textarea::-webkit-scrollbar-thumb { background: #303640; border-radius: 999px; }
+  .editor-textarea::-webkit-scrollbar-thumb:hover { background: #46505e; }
 
   .editor-bottombar {
     display: flex; justify-content: space-between; align-items: center; padding: 5px 12px;
@@ -605,7 +574,7 @@
 
   /* Contact page card */
   .contact-card {
-    background: var(--surface-base); border: 1px solid var(--border-subtle);
+    background: var(--surface-base); border: none;
     border-radius: var(--r-sm); overflow: hidden;
   }
   .contact-head {
@@ -617,7 +586,7 @@
     padding: 8px 12px; color: var(--text-primary); font-family: var(--font-mono); font-size: 12px; outline: none;
     transition: border-color var(--duration-fast) var(--ease-out);
   }
-  .contact-input:focus { border-color: var(--accent); }
+  .contact-input:focus { border-color: var(--accent); outline: none; box-shadow: none; }
 
   .app-footer {
     max-width: 1320px; margin: 0 auto; padding: 14px 16px 24px; display: flex; justify-content: space-between;
@@ -627,6 +596,16 @@
   .foot-disc { max-width: 720px; line-height: 1.5; }
 
   @keyframes btnSpin { to { transform: rotate(360deg); } }
+
+  /* Normal UI typography — Roboto throughout the application chrome. */
+  .brand-name, .brand-tag, .header-telemetry, .drawer-title, .drawer-sub,
+  .drawer-group-label, .drawer-item, .drawer-item .item-sub, .drawer-link,
+  .banner, .banner-pill-btn, .tab-btn, .custom-dropdown-trigger, .dropdown-option-row,
+  .action-menu-item, .btn-ghost, .editor-topbar, .editor-file,  .editor-bottombar, .content-bar-header, .content-bar-badge, .content-stat-k,
+  .content-stat-v, .term-btn, .fs-topbar, .fs-title-group, .contact-head,
+  .contact-input, .app-footer, .foot-disc {
+    font-family: var(--font-ui);
+  }
 
   /* Focus ring accessibility */
   button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
@@ -643,6 +622,15 @@
   /* Mobile responsiveness */
   @media (max-width: 680px) {
     .header-telemetry { display: none; }
+    .editor-textarea-container {
+      overflow: hidden;
+      touch-action: auto;
+    }
+    .editor-textarea {
+      width: 100%;
+      min-width: 0;
+      touch-action: pan-x pan-y;
+    }
     .layout { padding: 10px 8px 32px; gap: 10px; }
     .console { padding: 10px; border-radius: var(--r-sm); }
     .editor-mid-controls-row { 
@@ -668,6 +656,44 @@
   @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
+
+/* CLEAN PANEL HIERARCHY
+   Keep the existing inner/card borders; remove only the large outer frame
+   around the application pages. */
+.console,
+.page,
+.preview-split-layout,
+.preview-main-column,
+.preview-sidebar-column {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* The app itself should not create another frame around the green inner cards. */
+.layout {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Preserve intentional inner/component borders. */
+.editor-shell,
+.preview-wrapper,
+.content-bar-card,
+.contact-card {
+  outline: none;
+}
+
+/* Remove any accidental outer pseudo-element frame. */
+.console::before,
+.console::after,
+.page::before,
+.page::after,
+.layout::before,
+.layout::after {
+  border: none !important;
+  box-shadow: none !important;
+}
 </style>
 </head>
 <body>
@@ -692,17 +718,6 @@
 <div class="telem"><span class="muted">SESSION</span><span id="clock">00:00:00</span></div>
 </div>
 <div class="header-actions">
-<button class="icon-btn" id="btn-theme-quick" title="Theme Mode">
-<svg fill="none" id="theme-icon-dark" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
-<circle cx="12" cy="12" r="5"></circle><line x1="12" x2="12" y1="1" y2="3"></line><line x1="12" x2="12" y1="21" y2="23"></line>
-<line x1="4.22" x2="5.64" y1="4.22" y2="5.64"></line><line x1="18.36" x2="19.78" y1="18.36" y2="19.78"></line>
-<line x1="1" x2="3" y1="12" y2="12"></line><line x1="21" x2="23" y1="12" y2="12"></line>
-<line x1="4.22" x2="5.64" y1="19.78" y2="18.36"></line><line x1="18.36" x2="19.78" y1="5.64" y2="4.22"></line>
-</svg>
-<svg fill="none" id="theme-icon-light" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" style="display:none;" viewbox="0 0 24 24">
-<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-</svg>
-</button>
 <button class="icon-btn" id="btn-sound" title="Sound Effects">
 <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -734,17 +749,7 @@
 </div>
 <div class="drawer-scroll-body">
 <div class="drawer-section">
-<div class="drawer-group-label">DISPLAY &amp; THEME</div>
-<div class="theme-selector-grid">
-<button class="theme-btn active" id="theme-btn-dark" onclick="triggerThemeChange('dark', event)">
-<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-<span>DARK</span>
-</button>
-<button class="theme-btn" id="theme-btn-light" onclick="triggerThemeChange('light', event)">
-<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" x2="12" y1="1" y2="3"></line><line x1="12" x2="12" y1="21" y2="23"></line></svg>
-<span>LIGHT</span>
-</button>
-</div>
+<div class="drawer-group-label">DISPLAY</div>
 <div class="drawer-card">
 <div class="drawer-item">
 <div><span>Atmospheric Particles</span><div class="item-sub">Dynamic background canvas field</div></div>
@@ -939,19 +944,6 @@
 <span id="line-stat">0 lines</span>
 </div>
 </div>
-<div class="editor-searchbar" id="editor-searchbar">
-  <div class="editor-search-input-wrap">
-    <svg class="editor-search-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="11" cy="11" r="7"></circle>
-      <path d="m20 20-4-4"></path>
-    </svg>
-    <input id="editor-search-input" type="search" autocomplete="off" spellcheck="false" placeholder="Find in code (Ctrl+F)..." aria-label="Search in code">
-  </div>
-  <span id="editor-search-count" class="editor-search-count"></span>
-  <button type="button" class="editor-search-btn" id="editor-search-prev" aria-label="Previous match" title="Previous match">↑</button>
-  <button type="button" class="editor-search-btn" id="editor-search-next" aria-label="Next match" title="Next match">↓</button>
-  <button type="button" class="editor-search-btn editor-search-close" id="editor-search-clear" aria-label="Clear search" title="Clear search">×</button>
-</div>
 <div class="editor-workspace">
 <div class="editor-lines" id="editor-lines">1</div>
 <div class="editor-textarea-container">
@@ -1122,7 +1114,7 @@
 
 <!-- Footer -->
 <footer class="app-footer">
-<div class="foot-disc">For educational and development prototyping exploration. Any script execution takes place in a client-isolated runtime environment.</div>
+
 <div>YUKI-VIEW · v3.8</div>
 </footer>
 
@@ -1373,21 +1365,6 @@ let previousLineCount = 0;
 
 function pad2(n) { return String(n).padStart(2, '0'); }
 
-/* Theme toggle handler: preserves dark-only direction */
-function triggerThemeChange(targetTheme, event) {
-  if (audio) audio.play('toggle');
-  const darkBtn = document.getElementById('theme-btn-dark');
-  const lightBtn = document.getElementById('theme-btn-light');
-  if (darkBtn && lightBtn) {
-    darkBtn.classList.add('active');
-    lightBtn.classList.remove('active');
-  }
-}
-
-function toggleTheme(e) {
-  if (audio) audio.play('toggle');
-}
-
 function handleBannerClick(event, actionName, url) {
   if (audio) audio.play('scan');
   const stdout = document.getElementById('console-stdout');
@@ -1476,343 +1453,25 @@ let scrollSyncRaf = null;
 function syncEditorScroll() {
   if (scrollSyncRaf) return;
   scrollSyncRaf = requestAnimationFrame(() => {
-    const top = codeInput.scrollTop;
-    const left = codeInput.scrollLeft;
-    editorHighlight.scrollTop = top;
-    editorHighlight.scrollLeft = left;
-    editorLines.scrollTop = top;
+    const top = codeInput ? codeInput.scrollTop : 0;
+    const left = codeInput ? codeInput.scrollLeft : 0;
+    if (editorHighlight) editorHighlight.style.transform = `translate3d(${-left}px, ${-top}px, 0)`;
+    if (editorLines) editorLines.scrollTop = top;
     scrollSyncRaf = null;
   });
 }
 
-function updateEditorStats() {
-  const val = codeInput.value;
-  charStat.innerText = `${val.length} chars`;
-  const lines = val.split('\n').length;
-  lineStat.innerText = `${lines} lines`;
-
-  if (lines !== previousLineCount) {
-    previousLineCount = lines;
-    let numHtml = '';
-    for (let i = 1; i <= Math.max(lines, 1); i++) {
-      numHtml += i + '<br>';
-    }
-    editorLines.innerHTML = numHtml;
-  }
-  
-  editorHighlight.innerHTML = highlightEditorCode(val);
-  syncEditorScroll();
+function updateEditorLayerSize() {
+  if (!codeInput || !editorHighlight) return;
+  const lines = (codeInput.value || '').split('\n');
+  const longestLine = lines.reduce((max, line) => Math.max(max, line.length), 0);
+  const contentWidth = Math.max(codeInput.clientWidth || 0, Math.ceil(longestLine * 7.1) + 40);
+  const contentHeight = Math.max(codeInput.clientHeight || 0, lines.length * 20 + 24);
+  editorHighlight.style.width = contentWidth + 'px';
+  editorHighlight.style.minHeight = contentHeight + 'px';
 }
 
-let inputDebounceTimer = null;
-codeInput.addEventListener('input', () => {
-  if (inputDebounceTimer) clearTimeout(inputDebounceTimer);
-  inputDebounceTimer = setTimeout(() => {
-    updateEditorStats();
-  }, 25);
-  if (audio) audio.play('key');
-}, { passive: true });
-
-codeInput.addEventListener('scroll', syncEditorScroll, { passive: true });
-
-codeInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    const start = codeInput.selectionStart;
-    const end = codeInput.selectionEnd;
-    codeInput.value = codeInput.value.substring(0, start) + '  ' + codeInput.value.substring(end);
-    codeInput.selectionStart = codeInput.selectionEnd = start + 2;
-    updateEditorStats();
-  }
-});
-
-function renderIframe(targetFrameId = 'live-frame') {
-  try {
-    const frame = document.getElementById(targetFrameId);
-    if (!frame) return;
-    
-    let htmlToRender = codeInput.value;
-    if (!htmlToRender.trim().toLowerCase().startsWith('<!doctype') && 
-        !htmlToRender.trim().toLowerCase().startsWith('<html')) {
-      htmlToRender = '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="font-family:sans-serif;padding:20px;background:#0d0d0d;color:#fff;"><h2>Preview (wrapped)</h2><pre style="white-space:pre-wrap;">' + 
-        htmlToRender.replace(/</g,'&lt;').replace(/>/g,'&gt;') + 
-        '</pre></body></html>';
-    }
-
-    frame.srcdoc = htmlToRender;
-
-    frame.onload = () => {
-      try {
-        const doc = frame.contentDocument || frame.contentWindow.document;
-        if (doc) {
-          const count = doc.getElementsByTagName('*').length || 0;
-          const domCountEl = document.getElementById('dom-count');
-          if (domCountEl) domCountEl.innerText = count + ' DOM NODES DETECTED';
-        }
-      } catch(e) {
-        const domCountEl = document.getElementById('dom-count');
-        if (domCountEl) domCountEl.innerText = 'SANDBOXED ACTIVE';
-      }
-    };
-  } catch(e) {
-    console.error('Render failed:', e);
-  }
-}
-
-function refreshPreview() {
-  renderIframe();
-  if (audio) audio.play('scan');
-}
-
-function toggleExpandPreview() {
-  liveFrame.classList.toggle('expanded');
-  if (audio) audio.play('toggle');
-}
-
-function openFullscreenPreview() {
-  const overlay = document.getElementById('fs-overlay');
-  if (overlay) {
-    renderIframe('fs-frame');
-    overlay.classList.add('open');
-    if (audio) audio.play('scan');
-  }
-}
-
-function closeFullscreenPreview() {
-  const overlay = document.getElementById('fs-overlay');
-  if (overlay) {
-    overlay.classList.remove('open');
-    if (audio) audio.play('toggle');
-  }
-}
-
-function closeActionMenu() {
-  const menuBox = document.getElementById('action-menu-box');
-  if (menuBox) menuBox.classList.remove('open');
-}
-
-function triggerMenuAction(actionFn) {
-  closeActionMenu();
-  if (typeof actionFn === 'function') actionFn();
-}
-
-function triggerMenuUpload() {
-  closeActionMenu();
-  const fileInput = document.getElementById('hidden-file-input');
-  if (fileInput) fileInput.click();
-}
-
-function executeRuntimeFromMenu() {
-  closeActionMenu();
-  executeRuntime();
-}
-
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeFullscreenPreview();
-    const container = document.getElementById('custom-dropdown-box');
-    if (container) container.classList.remove('open');
-    closeActionMenu();
-  }
-});
-
-function formatScript() {
-  if (currentLang === 'html') {
-    codeInput.value = codeInput.value.replace(/>\s*</g, '>\n<');
-  } else {
-    codeInput.value = codeInput.value.split('\n').map(l => l.trimEnd()).join('\n');
-  }
-  updateEditorStats();
-  if (audio) audio.play('scan');
-}
-
-function clearScript() {
-  if (confirm('Flush editor contents?')) {
-    codeInput.value = '';
-    updateEditorStats();
-    if (audio) audio.play('toggle');
-  }
-}
-
-function downloadScript() {
-  const blob = new Blob([codeInput.value], { type: 'text/plain;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = FILE_MAP[currentLang] || 'script.txt';
-  a.click();
-  if (audio) audio.play('success');
-}
-
-function handleFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (evt) => {
-    codeInput.value = evt.target.result;
-    updateEditorStats();
-    if (audio) audio.play('success');
-  };
-  reader.readAsText(file);
-}
-
-function switchTermView(view) {
-  document.getElementById('term-tab-stdout').classList.toggle('active', view === 'stdout');
-  document.getElementById('term-tab-stderr').classList.toggle('active', view === 'stderr');
-  document.getElementById('console-stdout').style.display = view === 'stdout' ? 'block' : 'none';
-  document.getElementById('console-stderr').style.display = view === 'stderr' ? 'block' : 'none';
-  if (audio) audio.play('tab');
-}
-
-function copyConsoleOutput() {
-  const activePre = document.getElementById('console-stdout').style.display !== 'none'
-    ? document.getElementById('console-stdout')
-    : document.getElementById('console-stderr');
-  navigator.clipboard.writeText(activePre.innerText);
-  if (audio) audio.play('success');
-}
-
-function clearConsoleOutput() {
-  document.getElementById('console-stdout').innerText = '> Console cleared.\n';
-  document.getElementById('console-stderr').innerText = '// Compiler logs cleared.\n';
-  if (audio) audio.play('toggle');
-}
-
-async function executeRuntime() {
-  if (isExecuting) return;
-  isExecuting = true;
-
-  const menuRunBtn = document.getElementById('menu-run-btn');
-  const menuRunLabel = document.getElementById('menu-run-label');
-  const teleStatusText = document.getElementById('tele-status-text');
-  const teleDur = document.getElementById('tele-dur');
-  const teleMem = document.getElementById('tele-mem');
-  const teleExit = document.getElementById('tele-exit');
-  const stdout = document.getElementById('console-stdout');
-  const stderr = document.getElementById('console-stderr');
-
-  if (menuRunBtn) {
-    menuRunBtn.classList.add('is-running');
-    menuRunBtn.disabled = true;
-  }
-  if (menuRunLabel) menuRunLabel.innerText = 'Executing...';
-  if (teleStatusText) teleStatusText.innerText = 'EXECUTING';
-
-  if (audio) audio.play('scan');
-
-  await new Promise(r => setTimeout(r, 450));
-
-  if (menuRunBtn) {
-    menuRunBtn.classList.remove('is-running');
-    menuRunBtn.disabled = false;
-  }
-  if (menuRunLabel) menuRunLabel.innerText = 'Run Script';
-  isExecuting = false;
-
-  const dur = Math.floor(210 + Math.random() * 45);
-  if (teleStatusText) teleStatusText.innerText = '200 OK';
-  if (teleDur) teleDur.innerText = `${dur}ms`;
-  if (teleMem) teleMem.innerText = '1.8 MB';
-  if (teleExit) teleExit.innerText = '0';
-
-  if (currentLang === 'html') {
-    switchTab('preview');
-    renderIframe();
-    if (stdout) stdout.innerText = `[HTML5 Sandbox DOM Executed in ${dur}ms]\n- Status: 200 OK\n- Render Frame: Sandboxed Iframe (allow-scripts allow-same-origin)\n- DOM Tree Mounted Cleanly & Interactive.`;
-    if (stderr) stderr.innerText = '// No DOM traps or syntax hazards emitted.';
-    if (audio) audio.play('success');
-    return;
-  }
-
-  if (currentLang === 'javascript') {
-    try {
-      let logs = '';
-      const orig = console.log;
-      console.log = (...args) => { logs += args.join(' ') + '\n'; };
-      new Function(codeInput.value)();
-      console.log = orig;
-      if (stdout) stdout.innerText = logs || '// Script evaluated without console out.';
-    } catch (e) {
-      if (stdout) stdout.innerText = '// Process terminated on error.';
-      if (stderr) stderr.innerText = `Traceback Runtime Fault:\n${e.message}`;
-      if (teleStatusText) teleStatusText.innerText = 'ERROR 1';
-      if (audio) audio.play('error');
-      return;
-    }
-  } else {
-    if (stdout) stdout.innerText = `[Virtual Sandbox - ${currentLang.toUpperCase()}]\nExecution verified.\nByte buffer: ${codeInput.value.length} bytes processed.\nExit code: 0.`;
-  }
-  if (stderr) stderr.innerText = '// No compiler errors emitted.';
-  if (audio) audio.play('success');
-}
-
-/* In-editor search */
-let editorSearchIndex = -1;
-let editorSearchMatches = [];
-
-function updateEditorSearchResults(resetIndex = true) {
-  const input = document.getElementById('editor-search-input');
-  const count = document.getElementById('editor-search-count');
-  if (!input || !codeInput) return;
-
-  const query = input.value;
-  editorSearchMatches = [];
-  if (query) {
-    const source = codeInput.value.toLowerCase();
-    const needle = query.toLowerCase();
-    let from = 0;
-    while (from <= source.length) {
-      const index = source.indexOf(needle, from);
-      if (index === -1) break;
-      editorSearchMatches.push(index);
-      from = index + Math.max(needle.length, 1);
-    }
-  }
-
-  if (resetIndex) editorSearchIndex = editorSearchMatches.length ? 0 : -1;
-
-  if (!query) {
-    if (count) count.textContent = '';
-    return;
-  }
-  if (!editorSearchMatches.length) {
-    if (count) count.textContent = '0 matches';
-    return;
-  }
-
-  if (editorSearchIndex < 0) editorSearchIndex = 0;
-  if (editorSearchIndex >= editorSearchMatches.length) editorSearchIndex = 0;
-  if (count) count.textContent = `${editorSearchIndex + 1}/${editorSearchMatches.length}`;
-
-  const start = editorSearchMatches[editorSearchIndex];
-  codeInput.focus({ preventScroll: true });
-  codeInput.setSelectionRange(start, start + query.length);
-  codeInput.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-  syncEditorScroll();
-}
-
-function moveEditorSearch(direction) {
-  if (!editorSearchMatches.length) {
-    updateEditorSearchResults(true);
-    return;
-  }
-  editorSearchIndex =
-    (editorSearchIndex + direction + editorSearchMatches.length) %
-    editorSearchMatches.length;
-  updateEditorSearchResults(false);
-}
-
-function clearEditorSearch() {
-  const input = document.getElementById('editor-search-input');
-  if (input) {
-    input.value = '';
-    input.blur();
-  }
-  editorSearchMatches = [];
-  editorSearchIndex = -1;
-  const count = document.getElementById('editor-search-count');
-  if (count) count.textContent = '';
-  codeInput.focus({ preventScroll: true });
-}
+window.addEventListener('resize', () => { updateEditorLayerSize(); syncEditorScroll(); }, { passive: true });
 
 window.addEventListener('DOMContentLoaded', () => {
   audio = new AudioEngine();
@@ -1823,37 +1482,6 @@ window.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  const editorSearchInput = document.getElementById('editor-search-input');
-  const editorSearchPrev = document.getElementById('editor-search-prev');
-  const editorSearchNext = document.getElementById('editor-search-next');
-  const editorSearchClear = document.getElementById('editor-search-clear');
-
-  if (editorSearchInput) {
-    editorSearchInput.addEventListener('input', () => updateEditorSearchResults(true));
-    editorSearchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        moveEditorSearch(e.shiftKey ? -1 : 1);
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        clearEditorSearch();
-      }
-    });
-  }
-  if (editorSearchPrev) editorSearchPrev.addEventListener('click', () => moveEditorSearch(-1));
-  if (editorSearchNext) editorSearchNext.addEventListener('click', () => moveEditorSearch(1));
-  if (editorSearchClear) editorSearchClear.addEventListener('click', clearEditorSearch);
-
-  document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
-      e.preventDefault();
-      const input = document.getElementById('editor-search-input');
-      if (input) {
-        input.focus();
-        input.select();
-      }
-    }
-  });
 
   const dropBtn = document.getElementById('lang-custom-btn');
   const dropBox = document.getElementById('custom-dropdown-box');
@@ -1912,8 +1540,6 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-settings').addEventListener('click', openDrawer);
   document.getElementById('btn-close-drawer').addEventListener('click', closeDrawer);
   backdrop.addEventListener('click', closeDrawer);
-
-  document.getElementById('btn-theme-quick').addEventListener('click', (e) => toggleTheme(e));
 
   document.getElementById('btn-sound').addEventListener('click', () => {
     audio.soundOn = !audio.soundOn;
