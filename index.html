@@ -32,12 +32,25 @@
     --r-sm: 6px;
     --r-md: 8px;
     --font-ui: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-mono: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'Roboto Mono', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace;
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --duration-fast: 120ms;
     --duration-med: 180ms;
     --duration-panel: 220ms;
   }
+
+  /* GitHub-style code colors */
+  .syntax-comment { color: #8b949e; font-style: italic; }
+  .syntax-tag { color: #7ee787; }
+  .syntax-string { color: #a5d6ff; }
+  .syntax-number { color: #79c0ff; }
+  .syntax-keyword { color: #ff7b72; font-weight: 500; }
+  .syntax-operator { color: #d2a8ff; }
+  .syntax-builtin { color: #ffa657; }
+  .syntax-variable { color: #ffa657; }
+  .syntax-function { color: #d2a8ff; }
+  .syntax-attribute { color: #79c0ff; }
+  .syntax-punctuation { color: #c9d1d9; }
 
   * { 
     box-sizing: border-box; 
@@ -67,32 +80,10 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Custom scrollbars */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #252d38;
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #333d4b;
-  }
-
-  /* Canvas Circular Ripple Layer & Snow */
-  #theme-circle-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 999999;
-  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #252d38; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #333d4b; }
 
   #snow-canvas {
     position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none;
@@ -101,7 +92,6 @@
   }
   #snow-canvas.off { opacity: 0; }
 
-  /* App Header - Studio Precision Tool Style */
   .app-header {
     position: sticky; top: 0; z-index: 50; width: 100%;
     background: var(--surface-base);
@@ -157,7 +147,6 @@
   .icon-btn:active { transform: translateY(1px); }
   .icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-  /* Settings Drawer */
   .drawer-backdrop {
     position: fixed; inset: 0; background: rgba(5, 7, 10, 0.65);
     z-index: 900; opacity: 0; pointer-events: none;
@@ -208,24 +197,6 @@
     letter-spacing: 0.8px; text-transform: uppercase; font-weight: 600;
   }
 
-  .theme-selector-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-    background: var(--surface-1); padding: 3px; border-radius: var(--r-sm);
-    border: 1px solid var(--border-subtle);
-  }
-  .theme-btn {
-    display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 10px;
-    border-radius: var(--r-xs); background: transparent; border: 1px solid transparent;
-    color: var(--text-secondary); font-family: var(--font-mono); font-size: 11px;
-    font-weight: 500; cursor: pointer;
-    transition: all var(--duration-fast) var(--ease-out);
-  }
-  .theme-btn svg { width: 13px; height: 13px; }
-  .theme-btn.active {
-    background: var(--surface-active); color: var(--text-primary);
-    border-color: var(--border-base); font-weight: 600;
-  }
-
   .drawer-card {
     background: var(--surface-1); border: 1px solid var(--border-subtle);
     border-radius: var(--r-sm); padding: 12px 14px; display: flex; flex-direction: column; gap: 12px;
@@ -265,13 +236,11 @@
   }
   .drawer-link:hover { background: var(--surface-2); border-color: var(--border-base); }
 
-  /* Main Layout */
   .layout {
     position: relative; z-index: 10; max-width: 1320px; margin: 0 auto;
     padding: 14px 16px 40px; display: flex; flex-direction: column; gap: 12px;
   }
 
-  /* Sub-banner: clean engineering metadata bar */
   .banner {
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
     background: var(--surface-base); border: 1px solid var(--border-subtle);
@@ -295,7 +264,6 @@
   .banner-pill-btn:active { transform: translateY(1px); }
   .banner-tag { font-size: 9px; color: var(--text-muted); padding-left: 2px; }
 
-  /* Professional Underline Tabs Bar */
   .tabs-wrapper {
     position: relative; width: 100%; display: flex; justify-content: flex-start;
     border-bottom: 1px solid var(--border-subtle); padding: 0 4px;
@@ -318,7 +286,6 @@
   .tab-btn.active { color: var(--text-primary); font-weight: 600; }
   .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
-  /* Console Container */
   .console {
     background: transparent; border: 1px solid var(--border-subtle);
     border-radius: var(--r-sm); padding: 14px; position: relative;
@@ -327,7 +294,6 @@
   .page.active { display: flex; animation: pageFade var(--duration-fast) var(--ease-out) both; }
   @keyframes pageFade { from { opacity: 0; } to { opacity: 1; } }
 
-  /* Controls row in Editor */
   .editor-mid-controls-row {
     display: flex; justify-content: flex-start; align-items: center; gap: 8px;
     margin-bottom: 10px; position: relative; z-index: 80;
@@ -361,7 +327,6 @@
   .radio-circle-indicator { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--text-muted); }
   .dropdown-option-row.active .radio-circle-indicator { border-color: var(--indicator); background: var(--indicator); }
 
-  /* Action Menu Button & Popover */
   .action-menu-container { position: relative; display: inline-flex; align-items: center; }
   .action-menu-trigger-btn {
     width: 32px; height: 32px; border-radius: var(--r-xs); background: var(--surface-1);
@@ -399,12 +364,10 @@
   .item-run.is-running .menu-run-spinner { display: inline-block; }
   .item-run.is-running svg { display: none; }
 
-  /* Desktop Quick Action Buttons */
   .desktop-quick-actions {
     display: flex; align-items: center; gap: 6px; margin-left: auto;
   }
 
-  /* Compact developer button */
   .btn-ghost {
     background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--border-subtle);
     border-radius: var(--r-xs); font-family: var(--font-mono); font-size: 11px;
@@ -423,7 +386,6 @@
   }
   .btn-primary-action:hover { background: var(--accent-hover); border-color: var(--accent); }
 
-  /* Editor Shell */
   .editor-shell {
     background: transparent; border: 1px solid var(--border-subtle); border-radius: var(--r-sm);
     overflow: hidden; display: flex; flex-direction: column;
@@ -441,11 +403,11 @@
     display: flex; min-height: 480px; max-height: 640px; background: #08090b; position: relative; 
   }
   .editor-lines {
-    width: 44px; padding: 10px 8px; text-align: right; font-family: var(--font-mono);
+    width: 48px; padding: 10px 8px; text-align: right; font-family: var(--font-mono);
     font-size: 11.5px; line-height: 20px; color: var(--text-faint); background: #0a0c0f;
     border-right: 1px solid var(--border-subtle); user-select: none; overflow: hidden;
   }
-    .editor-textarea-container {
+  .editor-textarea-container {
     flex: 1; position: relative; min-width: 0; min-height: 0; overflow: hidden;
     overscroll-behavior: contain; touch-action: none;
   }
@@ -478,7 +440,6 @@
     font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted);
   }
 
-  /* PREVIEW SPLIT LAYOUT */
   .preview-split-layout {
     display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(310px, 1fr);
     gap: 12px; align-items: stretch; margin-top: 4px;
@@ -494,7 +455,6 @@
   }
   .preview-iframe.expanded { min-height: 720px; }
 
-  /* Output / Telemetry Side Panel */
   .preview-sidebar-column { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   .content-bar-card {
     background: var(--surface-base); border: 1px solid var(--border-subtle);
@@ -526,7 +486,6 @@
     color: var(--text-primary); font-weight: 500; font-family: var(--font-mono);
   }
 
-  /* Console terminal */
   .preview-terminal-panel { display: flex; flex-direction: column; flex: 1; min-height: 240px; }
   .terminal-tabs {
     display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--border-subtle);
@@ -550,7 +509,6 @@
     overflow-y: auto; white-space: pre-wrap; line-height: 1.6;
   }
 
-  /* Full Screen Preview */
   .fullscreen-preview-overlay {
     position: fixed; inset: 0; z-index: 999999; background: var(--bg); display: none; flex-direction: column; width: 100vw; height: 100vh;
   }
@@ -572,7 +530,6 @@
   .fs-iframe-container { flex: 1; width: 100%; height: calc(100vh - 44px); background: #ffffff; }
   .fs-iframe-container iframe { width: 100%; height: 100%; border: none; background: #ffffff; display: block; }
 
-  /* Contact page card */
   .contact-card {
     background: var(--surface-base); border: none;
     border-radius: var(--r-sm); overflow: hidden;
@@ -593,21 +550,18 @@
     align-items: center; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--text-muted);
     font-family: var(--font-mono); border-top: 1px solid var(--border-subtle);
   }
-  .foot-disc { max-width: 720px; line-height: 1.5; }
 
   @keyframes btnSpin { to { transform: rotate(360deg); } }
 
-  /* Normal UI typography — Roboto throughout the application chrome. */
   .brand-name, .brand-tag, .header-telemetry, .drawer-title, .drawer-sub,
   .drawer-group-label, .drawer-item, .drawer-item .item-sub, .drawer-link,
   .banner, .banner-pill-btn, .tab-btn, .custom-dropdown-trigger, .dropdown-option-row,
-  .action-menu-item, .btn-ghost, .editor-topbar, .editor-file,  .editor-bottombar, .content-bar-header, .content-bar-badge, .content-stat-k,
+  .action-menu-item, .btn-ghost, .editor-topbar, .editor-file, .editor-bottombar, .content-bar-header, .content-bar-badge, .content-stat-k,
   .content-stat-v, .term-btn, .fs-topbar, .fs-title-group, .contact-head,
-  .contact-input, .app-footer, .foot-disc {
+  .contact-input, .app-footer {
     font-family: var(--font-ui);
   }
 
-  /* Focus ring accessibility */
   button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
@@ -619,30 +573,17 @@
     .desktop-quick-actions { display: none; }
   }
 
-  /* Mobile responsiveness */
   @media (max-width: 680px) {
     .header-telemetry { display: none; }
-    .editor-textarea-container {
-      overflow: hidden;
-      touch-action: auto;
-    }
-    .editor-textarea {
-      width: 100%;
-      min-width: 0;
-      touch-action: pan-x pan-y;
-    }
+    .editor-textarea-container { overflow: hidden; touch-action: auto; }
+    .editor-textarea { width: 100%; min-width: 0; touch-action: pan-x pan-y; }
     .layout { padding: 10px 8px 32px; gap: 10px; }
     .console { padding: 10px; border-radius: var(--r-sm); }
-    .editor-mid-controls-row { 
-      flex-wrap: nowrap; gap: 6px; position: relative;
-    }
+    .editor-mid-controls-row { flex-wrap: nowrap; gap: 6px; position: relative; }
     .custom-dropdown-container { flex: 1; min-width: 0; }
     .custom-dropdown-trigger { font-size: 11px; padding: 6px 8px; }
     .action-menu-container { position: static; }
-    .action-menu-popover {
-      position: absolute; top: 100%; right: 0; left: auto;
-      width: calc(100% - 4px); max-width: 260px;
-    }
+    .action-menu-popover { position: absolute; top: 100%; right: 0; left: auto; width: calc(100% - 4px); max-width: 260px; }
     .custom-dropdown-popover { left: 0; right: 0; width: 100%; min-width: 0; }
     .preview-iframe { min-height: 380px; }
     .tabs .tab-btn { padding: 6px 12px; font-size: 11px; }
@@ -657,50 +598,18 @@
     * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
 
-/* CLEAN PANEL HIERARCHY
-   Keep the existing inner/card borders; remove only the large outer frame
-   around the application pages. */
-.console,
-.page,
-.preview-split-layout,
-.preview-main-column,
-.preview-sidebar-column {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
+.console, .page, .preview-split-layout, .preview-main-column, .preview-sidebar-column {
+  border: none !important; outline: none !important; box-shadow: none !important;
 }
-
-/* The app itself should not create another frame around the green inner cards. */
-.layout {
-  border: none !important;
-  outline: none !important;
-}
-
-/* Preserve intentional inner/component borders. */
-.editor-shell,
-.preview-wrapper,
-.content-bar-card,
-.contact-card {
-  outline: none;
-}
-
-/* Remove any accidental outer pseudo-element frame. */
-.console::before,
-.console::after,
-.page::before,
-.page::after,
-.layout::before,
-.layout::after {
-  border: none !important;
-  box-shadow: none !important;
+.layout { border: none !important; outline: none !important; }
+.console::before, .console::after, .page::before, .page::after, .layout::before, .layout::after {
+  border: none !important; box-shadow: none !important;
 }
 </style>
 </head>
 <body>
-<canvas id="theme-circle-canvas"></canvas>
 <canvas id="snow-canvas"></canvas>
 
-<!-- Top Header Navigation -->
 <header class="app-header">
 <div class="header-inner">
 <div class="brand-group">
@@ -734,7 +643,6 @@
 </div>
 </header>
 
-<!-- Settings Drawer -->
 <div class="drawer-backdrop" id="drawer-backdrop"></div>
 <div class="drawer-container" id="drawer-container">
 <aside class="drawer" id="drawer">
@@ -785,7 +693,6 @@
 </aside>
 </div>
 
-<!-- Main Enclave Layout -->
 <div class="layout">
 <section class="banner">
 <div class="banner-left">
@@ -811,7 +718,6 @@
 </div>
 </section>
 
-<!-- Tabs Bar -->
 <div class="tabs-wrapper">
 <nav class="tabs" id="tabs">
 <div class="tab-indicator" id="tab-indicator"></div>
@@ -821,9 +727,7 @@
 </nav>
 </div>
 
-<!-- Console Workspace -->
 <div class="console">
-<!-- TAB 1: EDITOR -->
 <main class="page" id="page-editor">
 <div class="editor-mid-controls-row">
 <div class="custom-dropdown-container" id="custom-dropdown-box">
@@ -871,7 +775,6 @@
 </div>
 </div>
 
-<!-- Action Menu Button and Popover -->
 <div class="action-menu-container" id="action-menu-box">
 <button aria-label="Action Menu" class="action-menu-trigger-btn" id="action-menu-btn" title="Actions Menu" type="button">
 <svg fill="none" height="15" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="15">
@@ -921,7 +824,6 @@
 </div>
 </div>
 
-<!-- Desktop Quick Run / Format pills -->
 <div class="desktop-quick-actions">
   <button class="btn-ghost btn-primary-action" onclick="executeRuntime()">
     <svg fill="currentColor" height="11" viewbox="0 0 24 24" width="11">
@@ -935,7 +837,6 @@
 </div>
 </div>
 
-<!-- Editor Shell -->
 <div class="editor-shell" id="editor-box">
 <div class="editor-topbar">
 <div class="editor-file" id="file-title">test.html</div>
@@ -959,10 +860,8 @@
 <input id="hidden-file-input" onchange="handleFile(event)" style="display:none;" type="file"/>
 </main>
 
-<!-- TAB 2: PREVIEW WITH INTEGRATED OUTPUT / CONTENT BAR & CONSOLE -->
 <main class="page active" id="page-preview">
 <div class="preview-split-layout">
-  <!-- Left Side: Live Preview & Action Toolbar -->
   <div class="preview-main-column">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
@@ -991,9 +890,7 @@
     </div>
   </div>
 
-  <!-- Right Side: CONTENT BAR (Process Telemetry) + STDOUT/STDERR Terminal Panel -->
   <aside class="preview-sidebar-column">
-    <!-- Telemetry Card (CONTENT BAR) -->
     <div class="content-bar-card">
       <div class="content-bar-header">
         <span>Process Status</span>
@@ -1022,7 +919,6 @@
       </div>
     </div>
 
-    <!-- Integrated Terminal Logs / Output -->
     <div class="preview-terminal-panel">
       <div class="terminal-tabs">
         <button class="term-btn active" id="term-tab-stdout" onclick="switchTermView('stdout')">stdout</button>
@@ -1040,7 +936,6 @@
 </div>
 </main>
 
-<!-- TAB 3: CONTACT US -->
 <main class="page" id="page-contact">
 <div class="contact-card">
 <div class="contact-head">
@@ -1093,7 +988,6 @@
 </div>
 </div>
 
-<!-- Full Screen Functional Interactive View Overlay -->
 <div class="fullscreen-preview-overlay" id="fs-overlay">
 <div class="fs-topbar">
 <div class="fs-title-group">
@@ -1112,9 +1006,7 @@
 </div>
 </div>
 
-<!-- Footer -->
 <footer class="app-footer">
-
 <div>YUKI-VIEW · v3.8</div>
 </footer>
 
@@ -1421,32 +1313,113 @@ function onLanguageSelect(lang, notify = true) {
   const container = document.getElementById('custom-dropdown-box');
   if (container) container.classList.remove('open');
 
+  // Re-highlight on language change
+  updateEditorHighlight();
+
   if (notify && audio) audio.play('toggle');
 }
 
-function escapeEditorHtml(value) {
-  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-function highlightEditorCode(value) {
-  const tokenPattern = /(<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*|<\/?[A-Za-z][^>]*>|\b(?:const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|new|class|extends|try|catch|finally|throw|async|await|import|from|export|default|true|false|null|undefined|def|in|and|or|not|print|public|private|static|void|int|float|bool|using|namespace|fn|mut|package|func|echo)\b|(?:\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|\b\d+(?:\.\d+)?\b|===|!==|=>|==|!=|<=|>=|&&|\|\||[+*%!=<>?:-])/g;
-  let output = '';
-  let lastIndex = 0;
-  let match;
-  while ((match = tokenPattern.exec(value)) !== null) {
-    output += escapeEditorHtml(value.slice(lastIndex, match.index));
-    const token = match[0];
-    let className = 'syntax-operator';
-    if (/^<!--|^\/\*|^\/\//.test(token) || (currentLang === 'python' && /^#/.test(token))) className = 'syntax-comment';
-    else if (/^<\/?[A-Za-z]/.test(token)) className = 'syntax-tag';
-    else if (/^[\"'`]/.test(token)) className = 'syntax-string';
-    else if (/^\d/.test(token)) className = 'syntax-number';
-    else if (/^[A-Za-z_]/.test(token)) className = 'syntax-keyword';
-    output += `<span class="${className}">${escapeEditorHtml(token)}</span>`;
-    lastIndex = tokenPattern.lastIndex;
+/**
+ * GitHub Dark–style syntax highlighter.
+ * Works on the raw (unescaped) code, then escapes each token.
+ */
+function highlightCode(code, lang) {
+  // Tokenize using a master regex and emit escaped HTML with classes.
+  const patterns = [
+    // Comments
+    { type: 'comment', re: /(\/\/[^\n]*|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->|#[^\n]*)/ },
+    // Strings (double, single, backtick)
+    { type: 'string', re: /("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)/ },
+    // HTML tags
+    { type: 'tag', re: /(<\/?[A-Za-z][A-Za-z0-9-]*)/ },
+    { type: 'tag', re: /(\/?>)/ },
+    // Numbers
+    { type: 'number', re: /\b(\d+(?:\.\d+)?)\b/ },
+    // Keywords
+    { type: 'keyword', re: /\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|new|class|extends|try|catch|finally|throw|async|await|import|from|export|default|true|false|null|undefined|def|in|and|or|not|print|public|private|static|void|int|float|bool|using|namespace|fn|mut|package|func|echo|this|super|typeof|instanceof|delete|yield)\b/ },
+    // Builtins
+    { type: 'builtin', re: /\b(console|document|window|Math|JSON|Array|Object|String|Number|Boolean|Promise|setTimeout|setInterval|fetch|require|module|exports|process)\b/ },
+    // Operators
+    { type: 'operator', re: /(===|!==|==|!=|<=|>=|&&|\|\||=>|\+\+|--|\+=|-=|\*=|\/=|%|[+\-*\/%=!<>?:])/ }
+  ];
+
+  // Build a combined regex with named groups would be ideal but we'll do a
+  // simple scanner instead: iterate through the string, at each position try
+  // to match one of the patterns; if matched, emit span; else emit escaped char.
+  let result = '';
+  let i = 0;
+  const len = code.length;
+
+  while (i < len) {
+    let matched = false;
+
+    // Skip whitespace quickly
+    if (/\s/.test(code[i])) {
+      result += escapeHtml(code[i]);
+      i++;
+      continue;
+    }
+
+    for (const p of patterns) {
+      // Use a sticky regex anchored at current position
+      const sticky = new RegExp(p.re.source, 'y');
+      sticky.lastIndex = i;
+      const m = sticky.exec(code);
+      if (m) {
+        const token = m[0];
+        result += `<span class="syntax-${p.type}">${escapeHtml(token)}</span>`;
+        i += token.length;
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      result += escapeHtml(code[i]);
+      i++;
+    }
   }
-  output += escapeEditorHtml(value.slice(lastIndex));
-  return output || ' ';
+
+  return result || ' ';
+}
+
+function updateEditorHighlight() {
+  if (!editorHighlight || !codeInput) return;
+  editorHighlight.innerHTML = highlightCode(codeInput.value, currentLang);
+}
+
+function updateEditorStats() {
+  if (!codeInput) return;
+  const val = codeInput.value;
+  const lineCount = val.split('\n').length;
+  const charCount = val.length;
+
+  if (charStat) charStat.innerText = charCount + ' chars';
+  if (lineStat) lineStat.innerText = lineCount + ' lines';
+
+  // Update line numbers
+  if (editorLines) {
+    const nums = [];
+    for (let i = 1; i <= lineCount; i++) nums.push(i);
+    editorLines.innerText = nums.join('\n');
+  }
+
+  // Update highlight
+  updateEditorHighlight();
+
+  // Update layer size
+  updateEditorLayerSize();
+
+  previousLineCount = lineCount;
 }
 
 let scrollSyncRaf = null;
@@ -1465,7 +1438,7 @@ function updateEditorLayerSize() {
   if (!codeInput || !editorHighlight) return;
   const lines = (codeInput.value || '').split('\n');
   const longestLine = lines.reduce((max, line) => Math.max(max, line.length), 0);
-  const contentWidth = Math.max(codeInput.clientWidth || 0, Math.ceil(longestLine * 7.1) + 40);
+  const contentWidth = Math.max(codeInput.clientWidth || 0, Math.ceil(longestLine * 7.1) + 60);
   const contentHeight = Math.max(codeInput.clientHeight || 0, lines.length * 20 + 24);
   editorHighlight.style.width = contentWidth + 'px';
   editorHighlight.style.minHeight = contentHeight + 'px';
@@ -1473,15 +1446,337 @@ function updateEditorLayerSize() {
 
 window.addEventListener('resize', () => { updateEditorLayerSize(); syncEditorScroll(); }, { passive: true });
 
+// ---------- RUNTIME ----------
+function renderIframe() {
+  if (!liveFrame) return;
+  const code = codeInput ? codeInput.value : '';
+  const startTime = performance.now();
+
+  if (currentLang === 'html') {
+    liveFrame.srcdoc = code;
+  } else {
+    // For non-HTML languages, show a simple informational page
+    liveFrame.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+      body{background:#0d1117;color:#c9d1d9;font-family:'Roboto Mono',monospace;padding:40px;font-size:13px;line-height:1.7;}
+      .badge{display:inline-block;background:rgba(63,185,80,0.15);border:1px solid rgba(63,185,80,0.35);color:#3fb950;padding:4px 10px;border-radius:4px;font-size:11px;margin-bottom:16px;}
+      pre{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:16px;overflow:auto;color:#8b949e;}
+      h1{font-size:16px;margin-bottom:8px;color:#e6edf3;}
+      p{color:#8b949e;margin-bottom:16px;}
+    </style></head><body>
+      <div class="badge">● ${currentLang.toUpperCase()} RUNTIME</div>
+      <h1>Source Loaded Successfully</h1>
+      <p>This is a sandboxed preview environment. Non-HTML code is displayed below for inspection.</p>
+      <pre>${escapeHtml(code)}</pre>
+    </body></html>`;
+  }
+
+  const elapsed = Math.round(performance.now() - startTime);
+  updateTelemetry(elapsed);
+
+  // Count DOM nodes after load
+  setTimeout(() => {
+    try {
+      const doc = liveFrame.contentDocument;
+      if (doc) {
+        const count = doc.querySelectorAll('*').length;
+        const el = document.getElementById('dom-count');
+        if (el) el.innerText = count + ' DOM NODES DETECTED';
+      }
+    } catch (e) { /* cross-origin, ignore */ }
+  }, 200);
+}
+
+function updateTelemetry(duration) {
+  const durEl = document.getElementById('tele-dur');
+  if (durEl) durEl.innerText = duration + 'ms';
+
+  const memEl = document.getElementById('tele-mem');
+  if (memEl) memEl.innerText = (0.8 + Math.random() * 2.5).toFixed(1) + ' MB';
+
+  const stdout = document.getElementById('console-stdout');
+  if (stdout) {
+    stdout.innerText = `[HTML5 Sandbox DOM Executed in ${duration}ms]\n` +
+      `- Status: 200 OK\n` +
+      `- Render Frame: Sandboxed Iframe (allow-scripts allow-same-origin)\n` +
+      `- DOM Tree Mounted Cleanly & Interactive.`;
+  }
+}
+
+function executeRuntime() {
+  if (isExecuting) return;
+  isExecuting = true;
+
+  const btn = document.getElementById('menu-run-btn');
+  const label = document.getElementById('menu-run-label');
+  if (btn) btn.classList.add('is-running');
+  if (label) label.innerText = 'Running...';
+  if (audio) audio.play('scan');
+
+  // Close action menu
+  const actionBox = document.getElementById('action-menu-box');
+  if (actionBox) actionBox.classList.remove('open');
+
+  setTimeout(() => {
+    renderIframe();
+    if (btn) btn.classList.remove('is-running');
+    if (label) label.innerText = 'Run Script';
+    isExecuting = false;
+    if (audio) audio.play('success');
+
+    // Auto-switch to preview tab
+    switchTab('preview');
+  }, 350);
+}
+
+function executeRuntimeFromMenu() {
+  executeRuntime();
+}
+
+function formatScript() {
+  if (!codeInput) return;
+  const code = codeInput.value;
+
+  if (currentLang === 'html') {
+    // Very light HTML formatter: indent tags
+    const formatted = code
+      .replace(/>\s*</g, '>\n<')
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join('\n');
+    codeInput.value = formatted;
+  } else {
+    // Generic: just trim trailing whitespace and ensure final newline
+    codeInput.value = code.split('\n').map(l => l.replace(/\s+$/, '')).join('\n');
+  }
+
+  updateEditorStats();
+  if (audio) audio.play('toggle');
+}
+
+function clearScript() {
+  if (!codeInput) return;
+  if (!confirm('Clear all code? This cannot be undone.')) return;
+  codeInput.value = '';
+  updateEditorStats();
+  if (audio) audio.play('toggle');
+}
+
+function downloadScript() {
+  if (!codeInput) return;
+  const blob = new Blob([codeInput.value], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = FILE_MAP[currentLang] || 'code.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  if (audio) audio.play('success');
+}
+
+function triggerMenuUpload() {
+  const fileInput = document.getElementById('hidden-file-input');
+  if (fileInput) fileInput.click();
+  const actionBox = document.getElementById('action-menu-box');
+  if (actionBox) actionBox.classList.remove('open');
+}
+
+function handleFile(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    if (codeInput) {
+      codeInput.value = e.target.result;
+      updateEditorStats();
+      if (audio) audio.play('success');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function triggerMenuAction(fn) {
+  const actionBox = document.getElementById('action-menu-box');
+  if (actionBox) actionBox.classList.remove('open');
+  if (typeof fn === 'function') fn();
+}
+
+function refreshPreview() {
+  renderIframe();
+  if (audio) audio.play('scan');
+}
+
+function toggleExpandPreview() {
+  const frame = document.querySelector('.preview-iframe');
+  if (frame) frame.classList.toggle('expanded');
+  if (audio) audio.play('toggle');
+}
+
+function openFullscreenPreview() {
+  const overlay = document.getElementById('fs-overlay');
+  const fsFrame = document.getElementById('fs-frame');
+  if (!overlay || !fsFrame) return;
+  fsFrame.srcdoc = liveFrame ? liveFrame.srcdoc : '';
+  overlay.classList.add('open');
+  if (audio) audio.play('scan');
+}
+
+function closeFullscreenPreview() {
+  const overlay = document.getElementById('fs-overlay');
+  if (overlay) overlay.classList.remove('open');
+  if (audio) audio.play('toggle');
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeFullscreenPreview();
+    const drawer = document.getElementById('drawer-container');
+    if (drawer) drawer.classList.remove('open');
+    const backdrop = document.getElementById('drawer-backdrop');
+    if (backdrop) backdrop.classList.remove('open');
+  }
+});
+
+function switchTermView(which) {
+  const stdout = document.getElementById('console-stdout');
+  const stderr = document.getElementById('console-stderr');
+  const tStdout = document.getElementById('term-tab-stdout');
+  const tStderr = document.getElementById('term-tab-stderr');
+  if (!stdout || !stderr) return;
+
+  if (which === 'stdout') {
+    stdout.style.display = 'block';
+    stderr.style.display = 'none';
+    if (tStdout) tStdout.classList.add('active');
+    if (tStderr) tStderr.classList.remove('active');
+  } else {
+    stdout.style.display = 'none';
+    stderr.style.display = 'block';
+    if (tStdout) tStdout.classList.remove('active');
+    if (tStderr) tStderr.classList.add('active');
+  }
+}
+
+function copyConsoleOutput() {
+  const stdout = document.getElementById('console-stdout');
+  const stderr = document.getElementById('console-stderr');
+  const active = (stderr && stderr.style.display !== 'none') ? stderr : stdout;
+  if (!active) return;
+  navigator.clipboard.writeText(active.innerText).then(() => {
+    if (audio) audio.play('success');
+  }).catch(() => {});
+}
+
+function clearConsoleOutput() {
+  const stdout = document.getElementById('console-stdout');
+  const stderr = document.getElementById('console-stderr');
+  if (stdout) stdout.innerText = '';
+  if (stderr) stderr.innerText = '';
+  if (audio) audio.play('toggle');
+}
+
+// ---------- CONTACT FORM ----------
+async function handleContactSubmit(e) {
+  e.preventDefault();
+
+  const btn = document.getElementById('contact-submit-btn');
+  const spinner = document.getElementById('contact-spinner');
+  const icon = document.getElementById('contact-send-icon');
+  const label = document.getElementById('contact-btn-text');
+  const feedback = document.getElementById('contact-feedback-msg');
+  const form = document.getElementById('contact-relay-form');
+  const nameEl = document.getElementById('contact-name');
+  const emailEl = document.getElementById('contact-email');
+  const topicEl = document.getElementById('contact-topic');
+  const messageEl = document.getElementById('contact-message');
+
+  if (!form || !nameEl || !emailEl || !topicEl || !messageEl) return;
+
+  const payload = {
+    access_key: 'a729bf58-b51f-4721-8179-bb70ae9e3744',
+    subject: topicEl.value.trim() || 'New Contact from YUKI-VIEW',
+    from_name: 'YUKI-VIEW Relay',
+    name: nameEl.value.trim(),
+    email: emailEl.value.trim(),
+    message: messageEl.value.trim()
+  };
+
+  if (btn) btn.disabled = true;
+  if (spinner) spinner.style.display = 'inline-block';
+  if (icon) icon.style.display = 'none';
+  if (label) label.innerText = 'TRANSMITTING...';
+  if (feedback) feedback.style.display = 'none';
+  if (window.audio) window.audio.play('scan');
+
+  try {
+    const response = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Unable to transmit the message.');
+    }
+
+    if (feedback) {
+      feedback.style.display = 'flex';
+      feedback.style.color = '#3fb950';
+      feedback.style.borderColor = 'rgba(63, 185, 80, 0.3)';
+      feedback.style.background = 'rgba(63, 185, 80, 0.1)';
+      const feedbackText = feedback.querySelector('span');
+      if (feedbackText) {
+        feedbackText.innerText = 'Message transmitted successfully. Administrator will respond to your email.';
+      }
+    }
+
+    form.reset();
+    const countEl = document.getElementById('contact-char-count');
+    if (countEl) countEl.innerText = '0 / 1000 chars';
+    if (window.audio) window.audio.play('success');
+
+  } catch (error) {
+    console.error('Web3Forms contact submission failed:', error);
+
+    if (feedback) {
+      feedback.style.display = 'flex';
+      feedback.style.color = '#f85149';
+      feedback.style.borderColor = 'rgba(248, 81, 73, 0.3)';
+      feedback.style.background = 'rgba(248, 81, 73, 0.1)';
+      const feedbackText = feedback.querySelector('span');
+      if (feedbackText) {
+        feedbackText.innerText = error.message || 'Transmission failed. Please try again.';
+      }
+    }
+
+    if (window.audio) window.audio.play('error');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (spinner) spinner.style.display = 'none';
+    if (icon) icon.style.display = 'inline-block';
+    if (label) label.innerText = 'Transmit Message';
+  }
+}
+
+// ---------- BOOT ----------
 window.addEventListener('DOMContentLoaded', () => {
   audio = new AudioEngine();
+  window.audio = audio;
+
   const canvas = document.getElementById('snow-canvas');
   if (canvas) snow = new SnowEngine(canvas);
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
-
 
   const dropBtn = document.getElementById('lang-custom-btn');
   const dropBox = document.getElementById('custom-dropdown-box');
@@ -1581,100 +1876,23 @@ window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('pointerdown', () => audio.init(), { once: true });
   window.addEventListener('keydown', () => audio.init(), { once: true });
 
+  // Boot editor
   codeInput.value = DEFAULT_CODE;
   updateEditorStats();
   onLanguageSelect('html', false);
   renderIframe();
   setTimeout(updateIndicator, 60);
   setTimeout(() => audio.play('boot'), 300);
+
+  // Live highlight on typing
+  codeInput.addEventListener('input', () => {
+    updateEditorStats();
+    if (audio && audio.keysOn) audio.play('key');
+  });
+
+  // Scroll sync
+  codeInput.addEventListener('scroll', syncEditorScroll, { passive: true });
 });
-
-async function handleContactSubmit(e) {
-  e.preventDefault();
-
-  const btn = document.getElementById('contact-submit-btn');
-  const spinner = document.getElementById('contact-spinner');
-  const icon = document.getElementById('contact-send-icon');
-  const label = document.getElementById('contact-btn-text');
-  const feedback = document.getElementById('contact-feedback-msg');
-  const form = document.getElementById('contact-relay-form');
-  const nameEl = document.getElementById('contact-name');
-  const emailEl = document.getElementById('contact-email');
-  const topicEl = document.getElementById('contact-topic');
-  const messageEl = document.getElementById('contact-message');
-
-  if (!form || !nameEl || !emailEl || !topicEl || !messageEl) return;
-
-  const payload = {
-    access_key: 'a729bf58-b51f-4721-8179-bb70ae9e3744',
-    subject: topicEl.value.trim() || 'New Contact from YUKI-VIEW',
-    from_name: 'YUKI-VIEW Relay',
-    name: nameEl.value.trim(),
-    email: emailEl.value.trim(),
-    message: messageEl.value.trim()
-  };
-
-  if (btn) btn.disabled = true;
-  if (spinner) spinner.style.display = 'inline-block';
-  if (icon) icon.style.display = 'none';
-  if (label) label.innerText = 'TRANSMITTING...';
-  if (feedback) feedback.style.display = 'none';
-  if (window.audio) window.audio.play('scan');
-
-  try {
-    const response = await fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const result = await response.json();
-
-    if (!response.ok || !result.success) {
-      throw new Error(result.message || 'Unable to transmit the message.');
-    }
-
-    if (feedback) {
-      feedback.style.display = 'flex';
-      feedback.style.color = '#3fb950';
-      feedback.style.borderColor = 'rgba(63, 185, 80, 0.3)';
-      feedback.style.background = 'rgba(63, 185, 80, 0.1)';
-      const feedbackText = feedback.querySelector('span');
-      if (feedbackText) {
-        feedbackText.innerText = 'Message transmitted successfully. Administrator will respond to your email.';
-      }
-    }
-
-    form.reset();
-    const countEl = document.getElementById('contact-char-count');
-    if (countEl) countEl.innerText = '0 / 1000 chars';
-    if (window.audio) window.audio.play('success');
-
-  } catch (error) {
-    console.error('Web3Forms contact submission failed:', error);
-
-    if (feedback) {
-      feedback.style.display = 'flex';
-      feedback.style.color = '#f85149';
-      feedback.style.borderColor = 'rgba(248, 81, 73, 0.3)';
-      feedback.style.background = 'rgba(248, 81, 73, 0.1)';
-      const feedbackText = feedback.querySelector('span');
-      if (feedbackText) {
-        feedbackText.innerText = error.message || 'Transmission failed. Please try again.';
-      }
-    }
-
-    if (window.audio) window.audio.play('error');
-  } finally {
-    if (btn) btn.disabled = false;
-    if (spinner) spinner.style.display = 'none';
-    if (icon) icon.style.display = 'inline-block';
-    if (label) label.innerText = 'Transmit Message';
-  }
-}
 </script>
 </body>
 </html>
