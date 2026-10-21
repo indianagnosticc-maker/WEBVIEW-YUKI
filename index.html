@@ -2054,9 +2054,20 @@ body, .device-wrapper { height: 100dvh; }
 }
 
 /* ==========================================================================
-   KEYBOARD / SHEET FIXES: hidden sheets can never peek through (no shadow,
-   not rendered), and the chat list is not re-anchored by the browser.
+   KEYBOARD GLIDE + SHEET FIXES
    ========================================================================== */
+@media (max-width: 899px) {
+  #screenChat {
+    bottom: var(--kb, 0px);
+    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.38s ease,
+                bottom 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  html.kb-open .composer-dock { padding-bottom: 10px; }
+}
+.messages-container { overflow-anchor: none; }
+
+/* hidden sheets / drawer can never peek through (no shadow, not rendered) */
 .user-sheet-modal { transform: translateY(120%); }
 .user-sheet-modal.active { transform: translateY(0); }
 .user-sheet-modal:not(.active),
@@ -2066,7 +2077,6 @@ body, .device-wrapper { height: 100dvh; }
   pointer-events: none;
   transition: transform 0.38s var(--smooth), visibility 0s linear 0.45s;
 }
-.messages-container { overflow-anchor: none; }
 </style>
 </head>
 <body>
@@ -2495,6 +2505,36 @@ body, .device-wrapper { height: 100dvh; }
 })();
 </script>
 
+<script>
+(function(){
+  /* Smooth keyboard: the keyboard overlays the page (page is NOT resized by the
+     browser). We read its height and glide the chat up/down with a CSS transition,
+     so it animates instead of jumping. Browsers without VirtualKeyboard API
+     (iOS Safari, Firefox) keep their normal native behaviour. */
+  var vk = navigator.virtualKeyboard;
+  if (!vk) return;
+  var root = document.documentElement;
+  try { vk.overlaysContent = true; } catch (e) { return; }
+  var meta = document.querySelector('meta[name="viewport"]');
+  if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=overlays-content');
+  root.classList.add('vk-overlay');
+  var last = -1;
+  function apply(){
+    var h = Math.max(0, Math.round((vk.boundingRect && vk.boundingRect.height) || 0));
+    if (h === last) return;
+    last = h;
+    root.style.setProperty('--kb', h + 'px');
+    root.classList.toggle('kb-open', h > 0);
+  }
+  vk.addEventListener('geometrychange', apply);
+  apply();
+  /* the browser must never scroll our fixed shell to "reveal" the input */
+  ['appShell', 'screenChat'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('scroll', function(){ if (el.scrollTop) el.scrollTop = 0; }, { passive: true });
+  });
+})();
+</script>
 
 <!-- Google Identity Services: in-page Google account prompt -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -3621,8 +3661,13 @@ async function handleSendMessage() {
   const peer = activePeer;
 
   try {
-    // Establish/merge the parent chat document BEFORE writing the message.
-    // This keeps Firestore rules and the realtime message listener in sync.
+    await addDoc(collection(db, 'chats', cId, 'messages'), {
+      text,
+      by: currentUser.uid,
+      at: serverTimestamp(),
+      seen: false
+    });
+
     await setDoc(doc(db, 'chats', cId), {
       users: [currentUser.uid, peer.uid],
       [`participants.${currentUser.uid}`]: true,
@@ -3634,25 +3679,6 @@ async function handleSendMessage() {
       unread: peer.isYuki ? {} : { [peer.uid]: increment(1), [currentUser.uid]: 0 },
       typing: { [currentUser.uid]: false }
     }, { merge: true });
-
-    const sentRef = await addDoc(collection(db, 'chats', cId, 'messages'), {
-      text,
-      by: currentUser.uid,
-      at: serverTimestamp(),
-      seen: false
-    });
-
-    // Optimistic render so the sender sees the message immediately,
-    // while Firestore realtime remains the source of truth.
-    const optimistic = msgCache.get(cId) || [];
-    if (!optimistic.some(x => x.id === sentRef.id)) {
-      optimistic.push({
-        id: sentRef.id,
-        msg: { text, by: currentUser.uid, at: new Date(), seen: false }
-      });
-      msgCache.set(cId, optimistic);
-      renderMessages(cId, optimistic);
-    }
 
     // Immediate local roster update; Firestore realtime will reconcile it with the server snapshot.
     const localEntry = conversationList.find(c => c.otherUid === peer.uid);
@@ -3669,8 +3695,6 @@ async function handleSendMessage() {
       setTimeout(async () => {
         let reply = '...';
         try {
-          // Yuki requests always go through the backend JS endpoint.
-          // The API key must remain server-side in /api/yuki, never in this HTML.
           const res = await fetch('/api/yuki', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -3689,34 +3713,19 @@ async function handleSendMessage() {
         yukiHistory.push({ role: 'user', content: text }, { role: 'assistant', content: reply });
         yukiHistory = yukiHistory.slice(-20);
 
-        // Keep the parent chat document valid before the bot message write.
-        await setDoc(doc(db, 'chats', cId), {
-          users: [currentUser.uid, YUKI_BOT_UID],
-          [`participants.${currentUser.uid}`]: true,
-          [`participants.${YUKI_BOT_UID}`]: true,
-          lastMsg: reply.slice(0, 80),
-          lastMsgAt: serverTimestamp(),
-          lastMsgBy: YUKI_BOT_UID,
-          touchAt: serverTimestamp()
-        }, { merge: true });
-
-        const replyRef = await addDoc(collection(db, 'chats', cId, 'messages'), {
+        await addDoc(collection(db, 'chats', cId, 'messages'), {
           text: reply,
           by: YUKI_BOT_UID,
           at: serverTimestamp(),
           seen: true
         });
 
-        // Optimistic Yuki render; realtime snapshot will reconcile it.
-        const yukiMsgs = msgCache.get(cId) || [];
-        if (!yukiMsgs.some(x => x.id === replyRef.id)) {
-          yukiMsgs.push({
-            id: replyRef.id,
-            msg: { text: reply, by: YUKI_BOT_UID, at: new Date(), seen: true }
-          });
-          msgCache.set(cId, yukiMsgs);
-          renderMessages(cId, yukiMsgs);
-        }
+        await setDoc(doc(db, 'chats', cId), {
+          lastMsg: reply.slice(0, 80),
+          lastMsgAt: serverTimestamp(),
+          lastMsgBy: YUKI_BOT_UID,
+          touchAt: serverTimestamp()
+        }, { merge: true });
       }, 650);
     }
   } catch(err) {
@@ -4073,8 +4082,8 @@ $('btnChatBack')?.addEventListener('click', () => {
 
 $('btnOpenYukiRoom')?.addEventListener('click', openYukiBotChat);
 
-/* Keyboard open/close: browser animates the resize natively; we only keep the
-   bottom of the chat anchored so nothing jumps (same behaviour as Instagram). */
+/* Keyboard open/close: while the chat glides up/down, keep the newest messages pinned
+   to the composer so nothing jumps. Runs before paint on every frame. */
 (function(){
   const box = $('messagesContainer');
   if (!box || !window.ResizeObserver) return;
