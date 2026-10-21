@@ -4062,52 +4062,21 @@ $('btnChatBack')?.addEventListener('click', () => {
 
 $('btnOpenYukiRoom')?.addEventListener('click', openYukiBotChat);
 
-/* Keyboard open/close: preserve the visible messages and ease the final adjustment naturally */
+/* Keyboard open/close: keep the same messages visible instead of hiding them below the keyboard */
 (function(){
   const box = $('messagesContainer');
   if (!box || !window.ResizeObserver) return;
   let prevH = box.clientHeight;
   let lastTop = box.scrollTop;
-  let resizeTimer = 0;
-  let pendingDelta = 0;
-  let animationFrame = 0;
   box.addEventListener('scroll', () => { lastTop = box.scrollTop; }, { passive: true });
-
   new ResizeObserver(() => {
     const h = box.clientHeight;
-    const d = prevH - h;
+    const d = prevH - h;          // + when keyboard opens, - when it closes
     prevH = h;
-    if (!d) return;
-
-    // Track the keyboard's full movement, then apply one eased correction
-    // after the native viewport resize has settled (avoids repeated scroll snaps).
-    pendingDelta += d;
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      const start = box.scrollTop;
-      const target = Math.max(0, Math.min(
-        start + pendingDelta,
-        box.scrollHeight - box.clientHeight
-      ));
-      pendingDelta = 0;
-      if (animationFrame) cancelAnimationFrame(animationFrame);
-      const distance = target - start;
-      if (Math.abs(distance) < 1) return;
-
-      const duration = 190;
-      const began = performance.now();
-      const ease = t => 1 - Math.pow(1 - t, 3);
-      const step = now => {
-        const progress = Math.min(1, (now - began) / duration);
-        box.scrollTop = start + distance * ease(progress);
-        if (progress < 1) animationFrame = requestAnimationFrame(step);
-        else {
-          animationFrame = 0;
-          lastTop = box.scrollTop;
-        }
-      };
-      animationFrame = requestAnimationFrame(step);
-    }, 70);
+    if (d !== 0) {
+      box.scrollTop = lastTop + d;
+      lastTop = box.scrollTop;
+    }
   }).observe(box);
 })();
 
@@ -4327,6 +4296,62 @@ $('btnContextDeleteChat')?.addEventListener('click', () => {
   window.addEventListener('unhandledrejection',function(e){ errs.push('promise: '+((e.reason&&e.reason.message)||e.reason)); setTimeout(function(){show(true)},300); });
   window.addEventListener('fbloadfail',function(){ errs.push('Firebase failed to load: '+window.__fbLoadError+'\nCheck internet / VPN / ad-blocker blocking gstatic.com'); show(true); });
   setTimeout(function(){ if(!window.__chatBooted){ if(!errs.length) errs.push('no error captured - Firebase still loading (slow/blocked network?)'); show(); } },7000);
+})();
+</script>
+<script>
+/* ==========================================================================
+   KEYBOARD ON/OFF -> CHAT SCROLL UP / SCROLL DOWN ANIMATION
+   (ported from the single-chat demo)
+   The visible height follows the live keyboard height with an eased
+   animation (same 0.34 ease as the demo). On every animated frame the
+   messages box resizes, and the existing message-list anchor logic in this
+   file scrolls the chat up (keyboard opens) / down (keyboard closes) in sync.
+   Nothing else is touched.
+   ========================================================================== */
+(function chatKeyboardScrollAnimation(){
+  var root = document.documentElement;
+  var vv = window.visualViewport;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var raf = 0;
+
+  function readH(){ return vv && vv.height > 0 ? vv.height : window.innerHeight; }
+  function readTop(){ return vv && isFinite(vv.offsetTop) ? vv.offsetTop : 0; }
+
+  var targetH = readH(), targetTop = readTop();
+  var currentH = targetH, currentTop = targetTop;
+
+  function animate(){
+    raf = 0;
+    var ease = 0.34;
+    currentH += (targetH - currentH) * ease;
+    currentTop += (targetTop - currentTop) * ease;
+    if (Math.abs(targetH - currentH) < 0.65) currentH = targetH;
+    if (Math.abs(targetTop - currentTop) < 0.65) currentTop = targetTop;
+
+    root.style.setProperty('--app-h', Math.round(currentH) + 'px');
+    if (currentTop || document.body.style.top) document.body.style.top = Math.round(currentTop) + 'px';
+
+    if (Math.abs(targetH - currentH) > 0.65 || Math.abs(targetTop - currentTop) > 0.65) {
+      raf = requestAnimationFrame(animate);
+    }
+  }
+
+  function schedule(){
+    targetH = readH();
+    targetTop = readTop();
+    if (!(targetH > 0)) return;
+    if (reduce) { currentH = targetH; currentTop = targetTop; }
+    if (!raf) raf = requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', schedule, { passive: true });
+  window.addEventListener('orientationchange', function(){ requestAnimationFrame(schedule); }, { passive: true });
+  if (vv) {
+    vv.addEventListener('resize', schedule, { passive: true });
+    vv.addEventListener('scroll', schedule, { passive: true });
+  }
+  document.addEventListener('focusin', schedule);
+  document.addEventListener('focusout', schedule);
 })();
 </script>
 </body>
