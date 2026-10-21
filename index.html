@@ -2062,11 +2062,12 @@ body, .device-wrapper { height: 100dvh; }
     left: 0;
     right: 0;
     top: var(--vt, 0px);
-    bottom: var(--kb, 0px);
-    height: auto;
+    bottom: auto;
+    height: var(--sh, 100dvh);
     margin: 0 auto;
-    transition: top 0.3s cubic-bezier(0.22, 1, 0.36, 1), bottom 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: top 0.32s cubic-bezier(0.22, 1, 0.36, 1), height 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   }
+  html, body { background: var(--app-bg); }
   html.kb-open .composer-dock { padding-bottom: 10px; }
 }
 .messages-container { overflow-anchor: none; }
@@ -2511,28 +2512,35 @@ body, .device-wrapper { height: 100dvh; }
 
 <script>
 (function(){
-  /* Smooth keyboard (works on Chrome, Firefox, Safari, WebViews):
-     the browser tells us instantly where the visible area is (visualViewport).
-     We never let the page jump; instead the whole app shell glides to that area
-     with a CSS transition on top/bottom. */
+  /* Smooth keyboard, independent of how the browser reacts to it.
+     Whatever the browser does (resize layout, shrink visual viewport, pan), we read
+     the finally visible area from visualViewport and animate OUR shell (top + height)
+     to it with a CSS transition. The shell height is always an explicit px value, so
+     the change is always a transition and never a jump. */
   var vv = window.visualViewport;
   if (!vv) return;
   var root = document.documentElement;
-  var raf = 0, lastT = -1, lastB = -1;
+  var raf = 0, baseH = 0, baseW = 0, lastT = null, lastH = null;
+  function measure(){
+    var w = window.innerWidth;
+    if (w !== baseW) { baseW = w; baseH = 0; }          /* rotation / window change */
+    baseH = Math.max(baseH, Math.round(window.innerHeight), Math.round(vv.height + vv.offsetTop));
+  }
   function update(){
     raf = 0;
-    var top = 0, bottom = 0;
+    measure();
+    var top = 0, h = baseH;
     if (vv.scale <= 1.02) {
       top = Math.max(0, Math.round(vv.offsetTop));
-      bottom = Math.max(0, Math.round(root.clientHeight - (vv.offsetTop + vv.height)));
+      h = Math.round(vv.height);
       if (top < 3) top = 0;
-      if (bottom < 3) bottom = 0;
+      if (Math.abs(h - baseH) < 3) h = baseH;
     }
     if (top !== lastT) { lastT = top; root.style.setProperty('--vt', top + 'px'); }
-    if (bottom !== lastB) {
-      lastB = bottom;
-      root.style.setProperty('--kb', bottom + 'px');
-      root.classList.toggle('kb-open', bottom > 60);
+    if (h !== lastH) {
+      lastH = h;
+      root.style.setProperty('--sh', h + 'px');
+      root.classList.toggle('kb-open', baseH - h > 60);
     }
   }
   function schedule(){ if (!raf) raf = requestAnimationFrame(update); }
