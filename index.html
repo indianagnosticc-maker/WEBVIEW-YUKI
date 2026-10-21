@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="color-scheme" content="only light">
 <meta name="darkreader-lock">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-visual">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Yuki</title>
 <link rel="icon" href="https://lh3.googleusercontent.com/aida-public/AB6AXuB4sBVUR8Nz47PlRnmU7Mn9yBzGxjtHQbmswmVJ8g5JBLmgwhevUrlEWaiPvzu5NGe_l3mKI1oWJzedHAZUWp_1iqSxEfaynl9A6aduhVIbZY_4KOtC4c22tAzKQJYC1E7gQtuq_k0JbQTLEPWTB2buOrT_ts7cIa-kfTMx_dbvLkbqkM7D00p3E_VLcpHPW49Vuv8tc_TAMxQCZGc2hpKdGpIkXY9j6A6mDYHzquEG8yWXaVh_tMpOUw">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1565,7 +1565,7 @@ button, .chat-card, .settings-row, .inbox-tab { touch-action: manipulation; }
 
 /* Smoothness-only rendering hints; visual design is unchanged. */
 .settings-drawer, .backdrop-scrim, .panes-track, .app-shell { will-change: transform; backface-visibility: hidden; }
-body, .device-wrapper { height: 100dvh; }
+body, .device-wrapper { height: var(--app-h, 100dvh); }
 
 /* ==========================================================================
    REFINEMENTS: calm, premium motion (transform + opacity only), sheet intro,
@@ -1797,14 +1797,14 @@ body, .device-wrapper { height: 100dvh; }
     --inbox-w: clamp(320px, 34%, 400px);
     width: calc(100% - 48px);
     max-width: 1200px;
-    height: min(100dvh - 48px, 900px);
+    height: min(var(--app-h, 100dvh) - 48px, 900px);
     margin: 0;
     border-radius: 18px;
     border: 1px solid var(--border-subtle);
     box-shadow: none;
   }
   @media (max-height: 640px) {
-    .device-wrapper { width: 100%; max-width: none; height: 100dvh; border-radius: 0; border: 0; }
+    .device-wrapper { width: 100%; max-width: none; height: var(--app-h, 100dvh); border-radius: 0; border: 0; }
   }
 
   .screen { transition: none; }
@@ -2051,36 +2051,6 @@ body, .device-wrapper { height: 100dvh; }
 .settings-drawer.menu-context .settings-row:last-child,
 .settings-drawer.chat-context .settings-row:last-child {
   border-bottom: 0;
-}
-
-/* ==========================================================================
-   KEYBOARD GLIDE + SHEET FIXES
-   ========================================================================== */
-@media (max-width: 899px) {
-  .device-wrapper {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: var(--vt, 0px);
-    bottom: auto;
-    height: var(--sh, 100dvh);
-    margin: 0 auto;
-    transition: top 0.32s cubic-bezier(0.22, 1, 0.36, 1), height 0.32s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  html, body { background: var(--app-bg); }
-  html.kb-open .composer-dock { padding-bottom: 10px; }
-}
-.messages-container { overflow-anchor: none; }
-
-/* hidden sheets / drawer can never peek through (no shadow, not rendered) */
-.user-sheet-modal { transform: translateY(120%); }
-.user-sheet-modal.active { transform: translateY(0); }
-.user-sheet-modal:not(.active),
-.settings-drawer:not(.active) {
-  visibility: hidden;
-  box-shadow: none;
-  pointer-events: none;
-  transition: transform 0.38s var(--smooth), visibility 0s linear 0.45s;
 }
 </style>
 </head>
@@ -2512,48 +2482,37 @@ body, .device-wrapper { height: 100dvh; }
 
 <script>
 (function(){
-  /* Smooth keyboard, independent of how the browser reacts to it.
-     Whatever the browser does (resize layout, shrink visual viewport, pan), we read
-     the finally visible area from visualViewport and animate OUR shell (top + height)
-     to it with a CSS transition. The shell height is always an explicit px value, so
-     the change is always a transition and never a jump. */
-  var vv = window.visualViewport;
-  if (!vv) return;
+  /* Keep --app-h synced to the browser's native keyboard animation.
+     Do not run a second eased height animation on top of visualViewport: it can
+     lag behind the keyboard and repeatedly resize/reflow the message list. */
   var root = document.documentElement;
-  var raf = 0, baseH = 0, baseW = 0, lastT = null, lastH = null;
-  function measure(){
-    var w = window.innerWidth;
-    if (w !== baseW) { baseW = w; baseH = 0; }          /* rotation / window change */
-    baseH = Math.max(baseH, Math.round(window.innerHeight), Math.round(vv.height + vv.offsetTop));
-  }
-  function update(){
-    raf = 0;
-    measure();
-    var top = 0, h = baseH;
-    if (vv.scale <= 1.02) {
-      top = Math.max(0, Math.round(vv.offsetTop));
-      h = Math.round(vv.height);
-      if (top < 3) top = 0;
-      if (Math.abs(h - baseH) < 3) h = baseH;
-    }
-    if (top !== lastT) { lastT = top; root.style.setProperty('--vt', top + 'px'); }
+  var queued = false;
+  var lastH = 0;
+  var lastW = 0;
+  var vv = window.visualViewport;
+  function syncViewport(){
+    queued = false;
+    var h = Math.round(vv ? vv.height : window.innerHeight);
+    var w = Math.round(vv ? vv.width : window.innerWidth);
+    if (!(h > 0)) return;
     if (h !== lastH) {
       lastH = h;
-      root.style.setProperty('--sh', h + 'px');
-      root.classList.toggle('kb-open', baseH - h > 60);
+      root.style.setProperty('--app-h', h + 'px');
     }
+    lastW = w;
   }
-  function schedule(){ if (!raf) raf = requestAnimationFrame(update); }
-  vv.addEventListener('resize', schedule);
-  vv.addEventListener('scroll', schedule);
-  window.addEventListener('resize', schedule);
-  window.addEventListener('orientationchange', schedule);
-  update();
-  /* the browser must never scroll our fixed shell to "reveal" the input */
-  ['appShell', 'screenChat'].forEach(function(id){
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('scroll', function(){ if (el.scrollTop) el.scrollTop = 0; }, { passive: true });
-  });
+  function scheduleSync(){
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(syncViewport);
+  }
+  syncViewport();
+  window.addEventListener('resize', scheduleSync, { passive: true });
+  window.addEventListener('orientationchange', scheduleSync, { passive: true });
+  if (vv) {
+    vv.addEventListener('resize', scheduleSync, { passive: true });
+    vv.addEventListener('scroll', scheduleSync, { passive: true });
+  }
 })();
 </script>
 
@@ -4103,22 +4062,54 @@ $('btnChatBack')?.addEventListener('click', () => {
 
 $('btnOpenYukiRoom')?.addEventListener('click', openYukiBotChat);
 
-/* Keyboard open/close: while the chat glides up/down, keep the newest messages pinned
-   to the composer so nothing jumps. Runs before paint on every frame. */
+/* Keyboard open/close: preserve the visible messages and ease the final adjustment naturally */
 (function(){
   const box = $('messagesContainer');
   if (!box || !window.ResizeObserver) return;
   let prevH = box.clientHeight;
+  let lastTop = box.scrollTop;
+  let resizeTimer = 0;
+  let pendingDelta = 0;
+  let animationFrame = 0;
+  box.addEventListener('scroll', () => { lastTop = box.scrollTop; }, { passive: true });
+
   new ResizeObserver(() => {
-    const h = box.clientHeight, d = prevH - h;   // + when keyboard opens, - when it closes
+    const h = box.clientHeight;
+    const d = prevH - h;
     prevH = h;
-    if (d !== 0) box.scrollTop += d;
+    if (!d) return;
+
+    // Track the keyboard's full movement, then apply one eased correction
+    // after the native viewport resize has settled (avoids repeated scroll snaps).
+    pendingDelta += d;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const start = box.scrollTop;
+      const target = Math.max(0, Math.min(
+        start + pendingDelta,
+        box.scrollHeight - box.clientHeight
+      ));
+      pendingDelta = 0;
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+      const distance = target - start;
+      if (Math.abs(distance) < 1) return;
+
+      const duration = 190;
+      const began = performance.now();
+      const ease = t => 1 - Math.pow(1 - t, 3);
+      const step = now => {
+        const progress = Math.min(1, (now - began) / duration);
+        box.scrollTop = start + distance * ease(progress);
+        if (progress < 1) animationFrame = requestAnimationFrame(step);
+        else {
+          animationFrame = 0;
+          lastTop = box.scrollTop;
+        }
+      };
+      animationFrame = requestAnimationFrame(step);
+    }, 70);
   }).observe(box);
 })();
-
-/* Tapping Send must not steal focus, so the keyboard stays open */
-$('btnSendMessage')?.addEventListener('pointerdown', e => e.preventDefault());
-$('btnSendMessage')?.addEventListener('mousedown', e => e.preventDefault());
 
 /* Keep relative times (now / 5m / 2h) live without refresh */
 setInterval(() => { if (currentUser) scheduleRenderDirects(); }, 30000);
