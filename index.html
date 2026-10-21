@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="color-scheme" content="only light">
 <meta name="darkreader-lock">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-visual">
 <title>Yuki</title>
 <link rel="icon" href="https://lh3.googleusercontent.com/aida-public/AB6AXuB4sBVUR8Nz47PlRnmU7Mn9yBzGxjtHQbmswmVJ8g5JBLmgwhevUrlEWaiPvzu5NGe_l3mKI1oWJzedHAZUWp_1iqSxEfaynl9A6aduhVIbZY_4KOtC4c22tAzKQJYC1E7gQtuq_k0JbQTLEPWTB2buOrT_ts7cIa-kfTMx_dbvLkbqkM7D00p3E_VLcpHPW49Vuv8tc_TAMxQCZGc2hpKdGpIkXY9j6A6mDYHzquEG8yWXaVh_tMpOUw">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2057,11 +2057,15 @@ body, .device-wrapper { height: 100dvh; }
    KEYBOARD GLIDE + SHEET FIXES
    ========================================================================== */
 @media (max-width: 899px) {
-  #screenChat {
+  .device-wrapper {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: var(--vt, 0px);
     bottom: var(--kb, 0px);
-    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.38s ease,
-                bottom 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    height: auto;
+    margin: 0 auto;
+    transition: top 0.3s cubic-bezier(0.22, 1, 0.36, 1), bottom 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
   html.kb-open .composer-dock { padding-bottom: 10px; }
 }
@@ -2507,27 +2511,36 @@ body, .device-wrapper { height: 100dvh; }
 
 <script>
 (function(){
-  /* Smooth keyboard: the keyboard overlays the page (page is NOT resized by the
-     browser). We read its height and glide the chat up/down with a CSS transition,
-     so it animates instead of jumping. Browsers without VirtualKeyboard API
-     (iOS Safari, Firefox) keep their normal native behaviour. */
-  var vk = navigator.virtualKeyboard;
-  if (!vk) return;
+  /* Smooth keyboard (works on Chrome, Firefox, Safari, WebViews):
+     the browser tells us instantly where the visible area is (visualViewport).
+     We never let the page jump; instead the whole app shell glides to that area
+     with a CSS transition on top/bottom. */
+  var vv = window.visualViewport;
+  if (!vv) return;
   var root = document.documentElement;
-  try { vk.overlaysContent = true; } catch (e) { return; }
-  var meta = document.querySelector('meta[name="viewport"]');
-  if (meta) meta.setAttribute('content', 'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=overlays-content');
-  root.classList.add('vk-overlay');
-  var last = -1;
-  function apply(){
-    var h = Math.max(0, Math.round((vk.boundingRect && vk.boundingRect.height) || 0));
-    if (h === last) return;
-    last = h;
-    root.style.setProperty('--kb', h + 'px');
-    root.classList.toggle('kb-open', h > 0);
+  var raf = 0, lastT = -1, lastB = -1;
+  function update(){
+    raf = 0;
+    var top = 0, bottom = 0;
+    if (vv.scale <= 1.02) {
+      top = Math.max(0, Math.round(vv.offsetTop));
+      bottom = Math.max(0, Math.round(root.clientHeight - (vv.offsetTop + vv.height)));
+      if (top < 3) top = 0;
+      if (bottom < 3) bottom = 0;
+    }
+    if (top !== lastT) { lastT = top; root.style.setProperty('--vt', top + 'px'); }
+    if (bottom !== lastB) {
+      lastB = bottom;
+      root.style.setProperty('--kb', bottom + 'px');
+      root.classList.toggle('kb-open', bottom > 60);
+    }
   }
-  vk.addEventListener('geometrychange', apply);
-  apply();
+  function schedule(){ if (!raf) raf = requestAnimationFrame(update); }
+  vv.addEventListener('resize', schedule);
+  vv.addEventListener('scroll', schedule);
+  window.addEventListener('resize', schedule);
+  window.addEventListener('orientationchange', schedule);
+  update();
   /* the browser must never scroll our fixed shell to "reveal" the input */
   ['appShell', 'screenChat'].forEach(function(id){
     var el = document.getElementById(id);
